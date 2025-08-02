@@ -7,6 +7,7 @@ import { formatDate, debounce } from '../lib/utils';
 import type { Order } from '@muta/shared';
 import { OrderStatus } from '@muta/shared';
 import { Search, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'next-i18next';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -14,13 +15,6 @@ interface OrdersTableProps {
   error: string | null;
 }
 
-const statusLabels: Record<OrderStatus, string> = {
-  [OrderStatus.PENDING]: 'Pendiente',
-  [OrderStatus.EN_ROUTE]: 'En Ruta',
-  [OrderStatus.IN_PROCESS]: 'En Proceso',
-  [OrderStatus.COMPLETED]: 'Completada',
-  [OrderStatus.CANCELLED]: 'Cancelada'
-};
 
 const statusColors: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
@@ -31,6 +25,7 @@ const statusColors: Record<OrderStatus, string> = {
 };
 
 export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
+  const { t } = useTranslation('common');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,8 +70,12 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
   };
 
   const statusOptions = [
-    { value: '', label: 'Todos los estados' },
-    ...Object.entries(statusLabels).map(([value, label]) => ({ value, label }))
+    { value: '', label: t('status.all') },
+    { value: OrderStatus.PENDING, label: t('status.pending') },
+    { value: OrderStatus.EN_ROUTE, label: t('status.in-route') },
+    { value: OrderStatus.IN_PROCESS, label: t('status.in-progress') },
+    { value: OrderStatus.COMPLETED, label: t('status.completed') },
+    { value: OrderStatus.CANCELLED, label: t('status.cancelled') }
   ];
 
   if (error) {
@@ -85,7 +84,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
         <CardContent className="p-6">
           <div className="flex items-center justify-center text-red-600">
             <RefreshCw className="w-5 h-5 mr-2" />
-            {error}
+            {t('errors.connectionError')}
           </div>
         </CardContent>
       </Card>
@@ -96,11 +95,11 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Órdenes Activas</CardTitle>
+          <CardTitle>{t('ordersTable.title')}</CardTitle>
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
             <span className="text-sm text-gray-600">
-              {isConnected ? 'Conectado' : 'Desconectado'}
+              {isConnected ? t('ordersTable.connected') : t('ordersTable.disconnected')}
             </span>
           </div>
         </div>
@@ -111,7 +110,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Buscar por dirección o recolector..."
+                placeholder={t('ordersTable.searchPlaceholder')}
                 onChange={handleSearchChange}
                 className="pl-10"
               />
@@ -122,7 +121,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
               options={statusOptions}
               value={statusFilter}
               onChange={(e) => handleStatusFilterChange(e.target.value)}
-              placeholder="Filtrar por estado"
+              placeholder={t('ordersTable.filterPlaceholder')}
             />
           </div>
         </div>
@@ -131,18 +130,18 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b">
-                <th className="text-left p-3 font-semibold">ID</th>
-                <th className="text-left p-3 font-semibold">Dirección</th>
-                <th className="text-left p-3 font-semibold">Estado</th>
-                <th className="text-left p-3 font-semibold">Recolector</th>
-                <th className="text-left p-3 font-semibold">Última Actualización</th>
+                <th className="text-left p-3 font-semibold">{t('ordersTable.headers.id')}</th>
+                <th className="text-left p-3 font-semibold">{t('ordersTable.headers.address')}</th>
+                <th className="text-left p-3 font-semibold">{t('ordersTable.headers.status')}</th>
+                <th className="text-left p-3 font-semibold">{t('ordersTable.headers.collector')}</th>
+                <th className="text-left p-3 font-semibold">{t('ordersTable.headers.lastUpdated')}</th>
               </tr>
             </thead>
             <tbody>
               {paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center p-8 text-gray-500">
-                    {orders.length === 0 ? 'No hay órdenes disponibles' : 'No se encontraron órdenes que coincidan con los filtros'}
+                    {orders.length === 0 ? t('ordersTable.noOrders') : t('ordersTable.noResults')}
                   </td>
                 </tr>
               ) : (
@@ -152,7 +151,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
                     <td className="p-3">{order.address}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                        {statusLabels[order.status]}
+                        {t(`status.${order.status}`)}
                       </span>
                     </td>
                     <td className="p-3">{order.collectorName}</td>
@@ -169,7 +168,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600">
-              Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, filteredOrders.length)} de {filteredOrders.length} órdenes
+              {t('ordersTable.pagination.showing')} {((currentPage - 1) * itemsPerPage) + 1} {t('ordersTable.pagination.to')} {Math.min(currentPage * itemsPerPage, filteredOrders.length)} {t('ordersTable.pagination.of')} {filteredOrders.length} {t('ordersTable.pagination.orders')}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -178,10 +177,10 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Anterior
+                {t('ordersTable.pagination.previous')}
               </Button>
               <span className="text-sm">
-                Página {currentPage} de {totalPages}
+                {t('ordersTable.pagination.page')} {currentPage} {t('ordersTable.pagination.of')} {totalPages}
               </span>
               <Button
                 variant="secondary"
@@ -189,7 +188,7 @@ export function OrdersTable({ orders, isConnected, error }: OrdersTableProps) {
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Siguiente
+                {t('ordersTable.pagination.next')}
               </Button>
             </div>
           </div>

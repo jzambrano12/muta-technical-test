@@ -5,17 +5,17 @@ import { OrderStatus } from '@muta/shared';
 
 const mockT = (key: string) => {
   const translations: Record<string, string> = {
-    'filterByStatus': 'Filter by status',
-    'allStatuses': 'All statuses',
-    'search': 'Search',
-    'searchPlaceholder': 'Search by address, collector or ID',
-    'apply': 'Apply',
-    'reset': 'Reset',
-    [`status.${OrderStatus.PENDING}`]: 'Pending',
-    [`status.${OrderStatus.EN_ROUTE}`]: 'En Route',
-    [`status.${OrderStatus.IN_PROCESS}`]: 'In Process',
-    [`status.${OrderStatus.COMPLETED}`]: 'Completed',
-    [`status.${OrderStatus.CANCELLED}`]: 'Cancelled',
+    'filters.filterByStatus': 'Filter by status',
+    'filters.allStatuses': 'All statuses',
+    'filters.search': 'Search',
+    'filters.searchPlaceholder': 'Search by address, collector or ID',
+    'filters.apply': 'Apply',
+    'filters.reset': 'Reset',
+    'status.pending': 'Pending',
+    'status.in-route': 'En Route',
+    'status.in-progress': 'In Process',
+    'status.completed': 'Completed',
+    'status.cancelled': 'Cancelled',
   };
   return translations[key] || key;
 };

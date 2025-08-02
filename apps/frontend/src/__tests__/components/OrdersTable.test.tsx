@@ -40,7 +40,7 @@ describe('OrdersTable', () => {
   it('renders orders table with correct data', () => {
     render(<OrdersTable {...defaultProps} />);
     
-    expect(screen.getByText('Órdenes Activas')).toBeInTheDocument();
+    expect(screen.getByText('Active Orders')).toBeInTheDocument();
     expect(screen.getByText('ORD-001')).toBeInTheDocument();
     expect(screen.getByText('Calle 123, Ciudad')).toBeInTheDocument();
     expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
@@ -48,10 +48,10 @@ describe('OrdersTable', () => {
 
   it('shows connection status correctly', () => {
     render(<OrdersTable {...defaultProps} />);
-    expect(screen.getByText('Conectado')).toBeInTheDocument();
+    expect(screen.getByText('Connected')).toBeInTheDocument();
     
     render(<OrdersTable {...defaultProps} isConnected={false} />);
-    expect(screen.getByText('Desconectado')).toBeInTheDocument();
+    expect(screen.getByText('Disconnected')).toBeInTheDocument();
   });
 
   it('displays error message when error prop is provided', () => {
@@ -76,7 +76,7 @@ describe('OrdersTable', () => {
     const user = userEvent.setup();
     render(<OrdersTable {...defaultProps} />);
     
-    const searchInput = screen.getByPlaceholderText('Buscar por dirección o recolector...');
+    const searchInput = screen.getByPlaceholderText('Search by address or collector...');
     await user.type(searchInput, 'Calle 123');
     
     await waitFor(() => {
@@ -90,7 +90,7 @@ describe('OrdersTable', () => {
     const user = userEvent.setup();
     render(<OrdersTable {...defaultProps} />);
     
-    const searchInput = screen.getByPlaceholderText('Buscar por dirección o recolector...');
+    const searchInput = screen.getByPlaceholderText('Search by address or collector...');
     await user.type(searchInput, 'María');
     
     await waitFor(() => {
@@ -104,11 +104,11 @@ describe('OrdersTable', () => {
     const user = userEvent.setup();
     render(<OrdersTable {...defaultProps} />);
     
-    const searchInput = screen.getByPlaceholderText('Buscar por dirección o recolector...');
+    const searchInput = screen.getByPlaceholderText('Search by address or collector...');
     await user.type(searchInput, 'NonExistentAddress');
     
     await waitFor(() => {
-      expect(screen.getByText('No se encontraron órdenes que coincidan con los filtros')).toBeInTheDocument();
+      expect(screen.getByText('No orders found matching the filters')).toBeInTheDocument();
     });
   });
 
@@ -116,14 +116,14 @@ describe('OrdersTable', () => {
     render(<OrdersTable {...defaultProps} />);
     
     // Status labels appear in both the filter dropdown and the table rows
-    expect(screen.getAllByText('Pendiente')).toHaveLength(2);
-    expect(screen.getAllByText('En Ruta')).toHaveLength(2);
-    expect(screen.getAllByText('Completada')).toHaveLength(2);
+    expect(screen.getAllByText('Pending')).toHaveLength(2);
+    expect(screen.getAllByText('In Route')).toHaveLength(2);
+    expect(screen.getAllByText('Completed')).toHaveLength(2);
   });
 
   it('handles empty orders array', () => {
     render(<OrdersTable {...defaultProps} orders={[]} />);
-    expect(screen.getByText('No hay órdenes disponibles')).toBeInTheDocument();
+    expect(screen.getByText('No orders available')).toBeInTheDocument();
   });
 
   it('handles pagination when there are many orders', () => {
@@ -137,7 +137,7 @@ describe('OrdersTable', () => {
 
     render(<OrdersTable {...defaultProps} orders={manyOrders} />);
     
-    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument();
-    expect(screen.getByText('Siguiente')).toBeInTheDocument();
+    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
+    expect(screen.getByText('Next')).toBeInTheDocument();
   });
 });

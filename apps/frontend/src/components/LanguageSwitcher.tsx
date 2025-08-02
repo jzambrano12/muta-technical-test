@@ -8,8 +8,8 @@ export const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const languageOptions = [
-    { value: 'es', label: t('spanish') },
-    { value: 'en', label: t('english') }
+    { value: 'es', label: t('language.spanish') },
+    { value: 'en', label: t('language.english') }
   ];
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -20,7 +20,7 @@ export const LanguageSwitcher: React.FC = () => {
   return (
     <div className="w-32">
       <Select
-        label={t('languageSwitcher')}
+        label={t('language.switchTo')}
         options={languageOptions}
         value={router.locale || 'es'}
         onChange={handleLanguageChange}

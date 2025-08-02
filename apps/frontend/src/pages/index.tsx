@@ -75,9 +75,9 @@ export default function Home() {
         <footer className="bg-white border-t mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="text-center text-sm text-gray-500">
-              <p>Muta Technical Test - Sistema de Gestión de Órdenes</p>
+              <p>{t('footer.companyInfo')}</p>
               <p className="mt-1">
-                Backend: Node.js + Socket.io | Frontend: Next.js + React 19
+                {t('footer.techStack')}
               </p>
             </div>
           </div>

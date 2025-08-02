@@ -39,12 +39,12 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({ onFilterChange, onRe
   };
 
   const statusOptions = [
-    { value: '', label: t('allStatuses') },
-    { value: OrderStatus.PENDING, label: t(`status.${OrderStatus.PENDING}`) },
-    { value: OrderStatus.EN_ROUTE, label: t(`status.${OrderStatus.EN_ROUTE}`) },
-    { value: OrderStatus.IN_PROCESS, label: t(`status.${OrderStatus.IN_PROCESS}`) },
-    { value: OrderStatus.COMPLETED, label: t(`status.${OrderStatus.COMPLETED}`) },
-    { value: OrderStatus.CANCELLED, label: t(`status.${OrderStatus.CANCELLED}`) }
+    { value: '', label: t('filters.allStatuses') },
+    { value: OrderStatus.PENDING, label: t('status.pending') },
+    { value: OrderStatus.EN_ROUTE, label: t('status.in-route') },
+    { value: OrderStatus.IN_PROCESS, label: t('status.in-progress') },
+    { value: OrderStatus.COMPLETED, label: t('status.completed') },
+    { value: OrderStatus.CANCELLED, label: t('status.cancelled') }
   ];
 
   return (
@@ -52,7 +52,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({ onFilterChange, onRe
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Select
-            label={t('filterByStatus')}
+            label={t('filters.filterByStatus')}
             options={statusOptions}
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -60,8 +60,8 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({ onFilterChange, onRe
         </div>
         <div>
           <Input
-            label={t('search')}
-            placeholder={t('searchPlaceholder')}
+            label={t('filters.search')}
+            placeholder={t('filters.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleApplyFilters()}
@@ -74,14 +74,14 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({ onFilterChange, onRe
           variant="primary"
           className="w-full sm:w-auto"
         >
-          {t('apply')}
+          {t('filters.apply')}
         </Button>
         <Button 
           onClick={handleReset} 
           variant="outline"
           className="w-full sm:w-auto"
         >
-          {t('reset')}
+          {t('filters.reset')}
         </Button>
       </div>
     </div>

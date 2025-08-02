@@ -5,9 +5,9 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const mockT = (key: string) => {
   const translations: Record<string, string> = {
-    'languageSwitcher': 'Language',
-    'spanish': 'Spanish',
-    'english': 'English',
+    'language.switchTo': 'Language',
+    'language.spanish': 'Spanish',
+    'language.english': 'English',
   };
   return translations[key] || key;
 };

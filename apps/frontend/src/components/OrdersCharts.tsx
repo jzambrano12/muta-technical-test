@@ -13,6 +13,7 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import type { Order } from '@muta/shared';
 import { OrderStatus } from '@muta/shared';
+import { useTranslation } from 'next-i18next';
 
 ChartJS.register(
   CategoryScale,
@@ -28,13 +29,6 @@ interface OrdersChartsProps {
   orders: Order[];
 }
 
-const statusLabels: Record<OrderStatus, string> = {
-  [OrderStatus.PENDING]: 'Pendiente',
-  [OrderStatus.EN_ROUTE]: 'En Ruta',
-  [OrderStatus.IN_PROCESS]: 'En Proceso',
-  [OrderStatus.COMPLETED]: 'Completada',
-  [OrderStatus.CANCELLED]: 'Cancelada'
-};
 
 const statusColors: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: '#FCD34D',
@@ -45,6 +39,7 @@ const statusColors: Record<OrderStatus, string> = {
 };
 
 export function OrdersCharts({ orders }: OrdersChartsProps) {
+  const { t } = useTranslation('common');
   const statusCounts = useMemo(() => {
     const counts: Record<OrderStatus, number> = {
       [OrderStatus.PENDING]: 0,
@@ -61,11 +56,19 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
     return counts;
   }, [orders]);
 
+  const statusTranslationKeys: Record<OrderStatus, string> = {
+    [OrderStatus.PENDING]: 'status.pending',
+    [OrderStatus.EN_ROUTE]: 'status.in-route',
+    [OrderStatus.IN_PROCESS]: 'status.in-progress',
+    [OrderStatus.COMPLETED]: 'status.completed',
+    [OrderStatus.CANCELLED]: 'status.cancelled'
+  };
+
   const barChartData = {
-    labels: Object.keys(statusCounts).map(status => statusLabels[status as OrderStatus]),
+    labels: Object.keys(statusCounts).map(status => t(statusTranslationKeys[status as OrderStatus])),
     datasets: [
       {
-        label: 'Cantidad de Órdenes',
+        label: t('charts.datasetLabel'),
         data: Object.values(statusCounts),
         backgroundColor: Object.keys(statusCounts).map(status => statusColors[status as OrderStatus]),
         borderColor: Object.keys(statusCounts).map(status => statusColors[status as OrderStatus]),
@@ -75,7 +78,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
   };
 
   const doughnutChartData = {
-    labels: Object.keys(statusCounts).map(status => statusLabels[status as OrderStatus]),
+    labels: Object.keys(statusCounts).map(status => t(statusTranslationKeys[status as OrderStatus])),
     datasets: [
       {
         data: Object.values(statusCounts),
@@ -129,7 +132,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{totalOrders}</div>
-                <div className="text-sm text-gray-600">Total</div>
+                <div className="text-sm text-gray-600">{t('charts.summary.total')}</div>
               </div>
             </CardContent>
           </Card>
@@ -137,7 +140,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">{activeOrders}</div>
-                <div className="text-sm text-gray-600">Activas</div>
+                <div className="text-sm text-gray-600">{t('charts.summary.active')}</div>
               </div>
             </CardContent>
           </Card>
@@ -145,7 +148,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{completedOrders}</div>
-                <div className="text-sm text-gray-600">Completadas</div>
+                <div className="text-sm text-gray-600">{t('charts.summary.completed')}</div>
               </div>
             </CardContent>
           </Card>
@@ -153,7 +156,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">{cancelledOrders}</div>
-                <div className="text-sm text-gray-600">Canceladas</div>
+                <div className="text-sm text-gray-600">{t('charts.summary.cancelled')}</div>
               </div>
             </CardContent>
           </Card>
@@ -163,7 +166,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
       {/* Bar Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Órdenes por Estado - Gráfico de Barras</CardTitle>
+          <CardTitle>{t('charts.barTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-80">
@@ -175,7 +178,7 @@ export function OrdersCharts({ orders }: OrdersChartsProps) {
       {/* Doughnut Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Distribución de Estados - Gráfico Circular</CardTitle>
+          <CardTitle>{t('charts.doughnutTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-80">
