@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: muta-backend-prod
+    restart: unless-stopped
+    
+    # Security configurations
+    user: backend
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://your-domain.com}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-1000}
+      - WS_PING_TIMEOUT=${WS_PING_TIMEOUT:-60000}
+      - WS_PING_INTERVAL=${WS_PING_INTERVAL:-25000}
+      - WS_API_KEY=${WS_API_KEY}
+      - SIMULATION_MIN_INTERVAL=${SIMULATION_MIN_INTERVAL:-3000}
+      - SIMULATION_MAX_INTERVAL=${SIMULATION_MAX_INTERVAL:-10000}
+      - TRUST_PROXY=true
+      - LOG_LEVEL=${LOG_LEVEL:-warn}
+      - LOG_FORMAT=json
+    
+    # Ports
+    ports:
+      - "8080:8080"
+    
+    # Volumes for logs (read-write)
+    volumes:
+      - logs:/app/logs
+      - /tmp:/tmp:rw
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Network
+    networks:
+      - backend-network
+
+  # Nginx reverse proxy for additional security
+  nginx:
+    image: nginx:alpine
+    container_name: muta-nginx-prod
+    restart: unless-stopped
+    
+    # Security configurations
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    
+    # Ports
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    # Nginx configuration
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - /tmp/nginx:/tmp:rw
+      - /var/cache/nginx:/var/cache/nginx:rw
+      - /var/run:/var/run:rw
+    
+    # Dependencies
+    depends_on:
+      backend:
+        condition: service_healthy
+    
+    # Network
+    networks:
+      - backend-network
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  logs:
+    driver: local
+
+networks:
+  backend-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,69 @@
+{
+  "title": "Panel de Órdenes de Recolección",
+  "subtitle": "Gestión en tiempo real de órdenes de recolección",
+  "ordersTable": {
+    "title": "Órdenes Activas",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "searchPlaceholder": "Buscar por dirección o recolector...",
+    "filterPlaceholder": "Filtrar por estado",
+    "headers": {
+      "id": "ID",
+      "address": "Dirección",
+      "status": "Estado",
+      "collector": "Recolector",
+      "lastUpdated": "Última Actualización"
+    },
+    "noOrders": "No hay órdenes disponibles",
+    "noResults": "No se encontraron órdenes que coincidan con los filtros",
+    "pagination": {
+      "showing": "Mostrando",
+      "to": "a",
+      "of": "de",
+      "orders": "órdenes",
+      "page": "Página",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  },
+  "charts": {
+    "barTitle": "Órdenes por Estado - Gráfico de Barras",
+    "doughnutTitle": "Distribución de Estados - Gráfico Circular",
+    "summary": {
+      "total": "Total",
+      "active": "Activas",
+      "completed": "Completadas",
+      "cancelled": "Canceladas"
+    },
+    "datasetLabel": "Cantidad de Órdenes"
+  },
+  "status": {
+    "all": "Todos los estados",
+    "pending": "Pendiente",
+    "in-route": "En Ruta",
+    "in-progress": "En Proceso",
+    "completed": "Completada",
+    "cancelled": "Cancelada"
+  },
+  "errors": {
+    "connectionError": "No se pudo conectar al servidor. Verifique su conexión.",
+    "retrying": "Reintentando conexión"
+  },
+  "language": {
+    "switchTo": "Cambiar a",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "filters": {
+    "filterByStatus": "Filtrar por Estado",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar por dirección o recolector...",
+    "apply": "Aplicar",
+    "reset": "Reiniciar",
+    "allStatuses": "Todos los estados"
+  },
+  "footer": {
+    "companyInfo": "Muta Technical Test - Sistema de Gestión de Órdenes",
+    "techStack": "Backend: Node.js + Socket.io | Frontend: Next.js + React 19"
+  }
+}

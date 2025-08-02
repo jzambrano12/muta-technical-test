@@ -1,0 +1,9 @@
+{
+  "extends": "@muta/tsconfig/base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["DOM", "ES2022"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.tsx", "**/*.test.ts"]
+}

@@ -1,0 +1,69 @@
+{
+  "title": "Collection Orders Dashboard",
+  "subtitle": "Real-time collection orders management",
+  "ordersTable": {
+    "title": "Active Orders",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "searchPlaceholder": "Search by address or collector...",
+    "filterPlaceholder": "Filter by status",
+    "headers": {
+      "id": "ID",
+      "address": "Address",
+      "status": "Status",
+      "collector": "Collector",
+      "lastUpdated": "Last Updated"
+    },
+    "noOrders": "No orders available",
+    "noResults": "No orders found matching the filters",
+    "pagination": {
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "orders": "orders",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "charts": {
+    "barTitle": "Orders by Status - Bar Chart",
+    "doughnutTitle": "Status Distribution - Doughnut Chart",
+    "summary": {
+      "total": "Total",
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "datasetLabel": "Number of Orders"
+  },
+  "status": {
+    "all": "All statuses",
+    "pending": "Pending",
+    "in-route": "In Route",
+    "in-progress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "errors": {
+    "connectionError": "Could not connect to server. Please check your connection.",
+    "retrying": "Retrying connection"
+  },
+  "language": {
+    "switchTo": "Switch to",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "filters": {
+    "filterByStatus": "Filter by Status",
+    "search": "Search",
+    "searchPlaceholder": "Search by address or collector...",
+    "apply": "Apply",
+    "reset": "Reset",
+    "allStatuses": "All statuses"
+  },
+  "footer": {
+    "companyInfo": "Muta Technical Test - Order Management System",
+    "techStack": "Backend: Node.js + Socket.io | Frontend: Next.js + React 19"
+  }
+}
