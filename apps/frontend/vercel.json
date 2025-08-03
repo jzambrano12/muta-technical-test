@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm --filter=@muta/frontend run build",
+  "buildCommand": "cd ../.. && pnpm --filter=@muta/shared run build && pnpm --filter=@muta/frontend run build",
   "outputDirectory": ".next",
   "devCommand": "pnpm dev",
   "installCommand": "cd ../.. && pnpm install",
