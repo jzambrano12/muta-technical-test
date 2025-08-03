@@ -117,10 +117,15 @@ describe('OrdersTable', () => {
   it('shows correct status labels and colors', () => {
     render(<OrdersTable {...defaultProps} />);
     
-    // Status labels appear in filter dropdown and table rows for existing orders
-    expect(screen.getByText('Pending')).toBeInTheDocument();
-    expect(screen.getByText('In Route')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    // Status labels appear in table rows for existing orders
+    const pendingBadges = screen.getAllByText('Pending');
+    expect(pendingBadges.length).toBeGreaterThan(0);
+    
+    const inRouteBadges = screen.getAllByText('In Route');
+    expect(inRouteBadges.length).toBeGreaterThan(0);
+    
+    const completedBadges = screen.getAllByText('Completed');
+    expect(completedBadges.length).toBeGreaterThan(0);
   });
 
   it('handles empty orders array', () => {
