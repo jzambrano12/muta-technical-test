@@ -1,8 +1,8 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "cd ../.. && pnpm --filter=@muta/frontend run build",
   "outputDirectory": ".next",
   "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
   "regions": ["iad1"],
   "headers": [
