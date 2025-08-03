@@ -5,6 +5,7 @@ Un sistema completo de gestión de órdenes con backend Node.js y frontend Next.
 ## 🚀 Características
 
 ### Backend (Node.js + Express + Socket.io)
+
 - ✅ API REST para consultas y filtrado de órdenes
 - ✅ WebSocket para actualizaciones en tiempo real
 - ✅ Simulación automática de datos de órdenes
@@ -14,6 +15,7 @@ Un sistema completo de gestión de órdenes con backend Node.js y frontend Next.
 - ✅ Configuración para deployment en DigitalOcean
 
 ### Frontend (Next.js + TypeScript + Tailwind)
+
 - ✅ Tabla de órdenes actualizada en tiempo real
 - ✅ Filtros interactivos y búsqueda
 - ✅ Gráficos de barras y circulares (Chart.js)
@@ -23,6 +25,7 @@ Un sistema completo de gestión de órdenes con backend Node.js y frontend Next.
 - ✅ Configuración para deployment en Vercel
 
 ### Monorepo
+
 - ✅ Turborepo para builds optimizados
 - ✅ pnpm workspaces
 - ✅ Código TypeScript compartido
@@ -48,10 +51,12 @@ muta-technical-test/
 ## 🛠️ Configuración de Desarrollo
 
 ### Prerrequisitos
+
 - Node.js 18+
 - pnpm 8+
 
 ### Instalación
+
 ```bash
 # Clonar repositorio
 git clone <repository-url>
@@ -66,6 +71,7 @@ cp apps/frontend/.env.example apps/frontend/.env.local
 ```
 
 ### Desarrollo
+
 ```bash
 # Ejecutar todo el proyecto en modo desarrollo
 pnpm dev
@@ -78,6 +84,7 @@ pnpm --filter @muta/frontend dev
 ```
 
 ### Tests
+
 ```bash
 # Ejecutar todos los tests
 pnpm test
@@ -90,6 +97,7 @@ pnpm --filter @muta/frontend test:watch
 ```
 
 ### Linting y Formateo
+
 ```bash
 # Lint
 pnpm lint
@@ -101,12 +109,14 @@ pnpm format
 ## 🚀 Deployment
 
 ### Backend - DigitalOcean App Platform
+
 1. Conectar repositorio GitHub
 2. Usar `apps/backend/app.yaml` como spec
 3. Configurar variables de entorno
 4. Deploy automático en push a main
 
 ### Frontend - Vercel
+
 1. Conectar repositorio a Vercel
 2. Configurar root directory: `apps/frontend`
 3. Configurar variables de entorno:
@@ -129,11 +139,13 @@ Ver diagrama completo en [docs/ARCHITECTURE.md](/Users/jorgeweb/Dev/muta-technic
 ## 🧪 Testing
 
 ### Cobertura de Tests
+
 - **Backend**: Servicios y rutas
 - **Frontend**: Componentes React y hooks
 - **UI Package**: Componentes del sistema de diseño
 
 ### Ejecutar Tests
+
 ```bash
 # Todos los tests
 pnpm test
@@ -164,14 +176,6 @@ pnpm lint         # Linting
 pnpm format       # Formatear código
 pnpm clean        # Limpiar archivos de build
 ```
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crear branch de feature (`git checkout -b feature/nueva-caracteristica`)
-3. Commit cambios (`git commit -m 'Agregar nueva característica'`)
-4. Push al branch (`git push origin feature/nueva-caracteristica`)
-5. Abrir Pull Request
 
 ## 📄 Licencia
 
