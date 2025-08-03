@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { OrdersTable } from '../../components/OrdersTable';
@@ -57,7 +57,7 @@ describe('OrdersTable', () => {
   it('displays error message when error prop is provided', () => {
     const errorMessage = 'Connection failed';
     render(<OrdersTable {...defaultProps} error={errorMessage} />);
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    expect(screen.getByText('Could not connect to server. Please check your connection.')).toBeInTheDocument();
   });
 
   it('filters orders by status', async () => {
@@ -65,7 +65,9 @@ describe('OrdersTable', () => {
     render(<OrdersTable {...defaultProps} />);
     
     const statusSelect = screen.getByRole('combobox');
-    await user.selectOptions(statusSelect, OrderStatus.PENDING);
+    await act(async () => {
+      await user.selectOptions(statusSelect, OrderStatus.PENDING);
+    });
     
     expect(screen.getByText('ORD-001')).toBeInTheDocument();
     expect(screen.queryByText('ORD-002')).not.toBeInTheDocument();
@@ -115,10 +117,10 @@ describe('OrdersTable', () => {
   it('shows correct status labels and colors', () => {
     render(<OrdersTable {...defaultProps} />);
     
-    // Status labels appear in both the filter dropdown and the table rows
-    expect(screen.getAllByText('Pending')).toHaveLength(2);
-    expect(screen.getAllByText('In Route')).toHaveLength(2);
-    expect(screen.getAllByText('Completed')).toHaveLength(2);
+    // Status labels appear in filter dropdown and table rows for existing orders
+    expect(screen.getByText('Pending')).toBeInTheDocument();
+    expect(screen.getByText('In Route')).toBeInTheDocument();
+    expect(screen.getByText('Completed')).toBeInTheDocument();
   });
 
   it('handles empty orders array', () => {

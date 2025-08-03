@@ -28,14 +28,18 @@ export function useSocket(url: string = 'http://localhost:3001'): UseSocketRetur
     });
 
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Socket connected');
+      }
       setIsConnected(true);
       setError(null);
       reconnectAttempts.current = 0;
     });
 
     socketInstance.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Socket disconnected:', reason);
+      }
       setIsConnected(false);
       if (reason === 'io server disconnect') {
         socketInstance.connect();
@@ -43,7 +47,9 @@ export function useSocket(url: string = 'http://localhost:3001'): UseSocketRetur
     });
 
     socketInstance.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Socket connection error:', error);
+      }
       reconnectAttempts.current += 1;
       
       if (reconnectAttempts.current >= maxReconnectAttempts) {
@@ -54,17 +60,23 @@ export function useSocket(url: string = 'http://localhost:3001'): UseSocketRetur
     });
 
     socketInstance.on('initial-orders', (initialOrders: Order[]) => {
-      console.log('Received initial orders:', initialOrders.length);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Received initial orders:', initialOrders.length);
+      }
       setOrders(initialOrders);
     });
 
     socketInstance.on('order-created', (message: { data: Order }) => {
-      console.log('New order created:', message.data.id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('New order created:', message.data.id);
+      }
       setOrders(prev => [...prev, message.data]);
     });
 
     socketInstance.on('order-update', (message: { data: Order }) => {
-      console.log('Order updated:', message.data.id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Order updated:', message.data.id);
+      }
       setOrders(prev => 
         prev.map(order => 
           order.id === message.data.id ? message.data : order
@@ -73,7 +85,9 @@ export function useSocket(url: string = 'http://localhost:3001'): UseSocketRetur
     });
 
     socketInstance.on('order-deleted', (message: { data: Order }) => {
-      console.log('Order deleted:', message.data.id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Order deleted:', message.data.id);
+      }
       setOrders(prev => prev.filter(order => order.id !== message.data.id));
     });
 

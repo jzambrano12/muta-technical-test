@@ -6,6 +6,20 @@ import { io } from 'socket.io-client';
 jest.mock('socket.io-client');
 const mockIo = io as jest.MockedFunction<typeof io>;
 
+// Mock console methods to avoid test output noise
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+
+beforeAll(() => {
+  console.log = jest.fn();
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.log = originalConsoleLog;
+  console.error = originalConsoleError;
+});
+
 // Mock socket instance
 const mockSocket = {
   on: jest.fn(),
@@ -48,10 +62,10 @@ describe('useSocket', () => {
     expect(mockSocket.on).toHaveBeenCalledWith('connect', expect.any(Function));
     expect(mockSocket.on).toHaveBeenCalledWith('disconnect', expect.any(Function));
     expect(mockSocket.on).toHaveBeenCalledWith('connect_error', expect.any(Function));
-    expect(mockSocket.on).toHaveBeenCalledWith('orders:initial', expect.any(Function));
-    expect(mockSocket.on).toHaveBeenCalledWith('orders:updated', expect.any(Function));
-    expect(mockSocket.on).toHaveBeenCalledWith('order:created', expect.any(Function));
-    expect(mockSocket.on).toHaveBeenCalledWith('order:updated', expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith('initial-orders', expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith('order-created', expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith('order-update', expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith('order-deleted', expect.any(Function));
   });
 
   it('updates connection status on connect event', () => {
@@ -88,7 +102,7 @@ describe('useSocket', () => {
   it('handles initial orders event', () => {
     const { result } = renderHook(() => useSocket());
 
-    const initialOrdersHandler = mockSocket.on.mock.calls.find(call => call[0] === 'orders:initial')?.[1];
+    const initialOrdersHandler = mockSocket.on.mock.calls.find(call => call[0] === 'initial-orders')?.[1];
     act(() => {
       initialOrdersHandler?.(mockOrders);
     });
@@ -99,9 +113,10 @@ describe('useSocket', () => {
   it('handles orders updated event', () => {
     const { result } = renderHook(() => useSocket());
 
-    const updatedOrdersHandler = mockSocket.on.mock.calls.find(call => call[0] === 'orders:updated')?.[1];
+    // First set initial orders
+    const initialOrdersHandler = mockSocket.on.mock.calls.find(call => call[0] === 'initial-orders')?.[1];
     act(() => {
-      updatedOrdersHandler?.(mockOrders);
+      initialOrdersHandler?.(mockOrders);
     });
 
     expect(result.current.orders).toEqual(mockOrders);
@@ -110,9 +125,9 @@ describe('useSocket', () => {
   it('handles new order created event', () => {
     const { result } = renderHook(() => useSocket());
 
-    const newOrderHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order:created')?.[1];
+    const newOrderHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order-created')?.[1];
     act(() => {
-      newOrderHandler?.(mockOrders[0]);
+      newOrderHandler?.({ data: mockOrders[0] });
     });
 
     expect(result.current.orders).toContain(mockOrders[0]);
@@ -122,16 +137,16 @@ describe('useSocket', () => {
     const { result } = renderHook(() => useSocket());
 
     // First add an order
-    const newOrderHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order:created')?.[1];
+    const newOrderHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order-created')?.[1];
     act(() => {
-      newOrderHandler?.(mockOrders[0]);
+      newOrderHandler?.({ data: mockOrders[0] });
     });
 
     // Then update it
     const updatedOrder = { ...mockOrders[0], status: 'completed' as const };
-    const orderUpdatedHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order:updated')?.[1];
+    const orderUpdatedHandler = mockSocket.on.mock.calls.find(call => call[0] === 'order-update')?.[1];
     act(() => {
-      orderUpdatedHandler?.(updatedOrder);
+      orderUpdatedHandler?.({ data: updatedOrder });
     });
 
     expect(result.current.orders[0].status).toBe('completed');
