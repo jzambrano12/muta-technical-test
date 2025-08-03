@@ -25,13 +25,26 @@ RUN pnpm turbo run build --filter=@muta/backend...
 # Production stage
 FROM node:18-alpine
 
+# Install pnpm for production
+RUN corepack enable && corepack prepare pnpm@8.15.1 --activate
+
 WORKDIR /app
 
-# Copy built application
-COPY --from=builder /app/apps/backend/dist ./dist
-COPY --from=builder /app/apps/backend/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/shared/dist ../packages/shared/dist
+# Copy workspace configuration
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+
+# Copy built application and its package.json
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+
+# Install only production dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+WORKDIR /app/apps/backend
 
 # Set production environment
 ENV NODE_ENV=production
