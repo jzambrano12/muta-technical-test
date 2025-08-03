@@ -197,8 +197,8 @@ export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunctio
 export const handleUnhandledRejection = () => {
   process.on('unhandledRejection', (reason: Error | unknown, promise) => {
     logger.error('Unhandled Promise Rejection', {
-      reason: reason?.message || reason,
-      stack: reason?.stack,
+      reason: reason instanceof Error ? reason.message : String(reason),
+      stack: reason instanceof Error ? reason.stack : undefined,
       promise: promise.toString(),
     });
 

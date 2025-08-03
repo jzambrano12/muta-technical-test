@@ -94,23 +94,23 @@ export const logger = winston.createLogger({
 // Create specialized loggers for different components
 export const createComponentLogger = (component: string) => {
   return {
-    error: (message: string, meta?: object) => 
+    error: (message: string, meta?: Record<string, unknown>) => 
       logger.error(message, { component, ...meta }),
     
-    warn: (message: string, meta?: object) => 
+    warn: (message: string, meta?: Record<string, unknown>) => 
       logger.warn(message, { component, ...meta }),
     
-    info: (message: string, meta?: object) => 
+    info: (message: string, meta?: Record<string, unknown>) => 
       logger.info(message, { component, ...meta }),
     
-    debug: (message: string, meta?: object) => 
+    debug: (message: string, meta?: Record<string, unknown>) => 
       logger.debug(message, { component, ...meta }),
   };
 };
 
 // Security-focused logger that sanitizes sensitive data
 export const securityLogger = {
-  logSecurityEvent: (event: string, details: object) => {
+  logSecurityEvent: (event: string, details: Record<string, unknown>) => {
     const sanitizedDetails = sanitizeSensitiveData(details);
     logger.warn(`SECURITY: ${event}`, {
       component: 'security',
@@ -127,7 +127,7 @@ export const securityLogger = {
     });
   },
   
-  logSuspiciousActivity: (activity: string, details: object) => {
+  logSuspiciousActivity: (activity: string, details: Record<string, unknown>) => {
     logger.error(`SUSPICIOUS: ${activity}`, {
       component: 'security',
       activity,
@@ -148,8 +148,8 @@ function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, un
   for (const key in sanitized) {
     if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
       sanitized[key] = '[REDACTED]';
-    } else if (typeof sanitized[key] === 'object') {
-      sanitized[key] = sanitizeSensitiveData(sanitized[key]);
+    } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      sanitized[key] = sanitizeSensitiveData(sanitized[key] as Record<string, unknown>);
     }
   }
 

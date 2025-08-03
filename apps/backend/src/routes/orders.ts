@@ -4,8 +4,9 @@ import { requestSchemas, createValidationMiddleware } from '../schemas/validatio
 import { asyncHandler, NotFoundError, ValidationError } from '../middleware/errorHandler';
 import { strictRateLimitMiddleware } from '../middleware/security';
 import { createComponentLogger } from '../utils/logger';
+import { OrderStatus, Order } from '@muta/shared';
 
-const router = Router();
+const router: Router = Router();
 const logger = createComponentLogger('ordersRouter');
 
 // Apply strict rate limiting to all order endpoints
@@ -40,8 +41,16 @@ router.get('/',
       requestId: (req as Request & { id?: string }).id,
     });
     
-    const filters = { status, search };
-    const pagination = { page, limit, sortBy, sortOrder };
+    const filters = { 
+      status: status && Object.values(OrderStatus).includes(status as OrderStatus) ? status as OrderStatus : undefined, 
+      search 
+    };
+    const pagination = { 
+      page: page ? parseInt(page, 10) : 1, 
+      limit: limit ? parseInt(limit, 10) : 20, 
+      sortBy: sortBy && ['id', 'address', 'status', 'collectorName', 'lastUpdated'].includes(sortBy) ? sortBy as keyof Order : undefined, 
+      sortOrder: sortOrder as 'asc' | 'desc' | undefined
+    };
     
     const result = await orderService.getFilteredOrders(filters, pagination);
     
@@ -124,7 +133,12 @@ router.get('/search',
       requestId: (req as Request & { id?: string }).id,
     });
     
-    const pagination = { page, limit, sortBy, sortOrder };
+    const pagination = { 
+      page: page ? parseInt(page, 10) : 1, 
+      limit: limit ? parseInt(limit, 10) : 20, 
+      sortBy: sortBy && ['id', 'address', 'status', 'collectorName', 'lastUpdated'].includes(sortBy) ? sortBy as keyof Order : undefined, 
+      sortOrder: sortOrder as 'asc' | 'desc' | undefined
+    };
     const result = await orderService.searchOrders(search, pagination);
     
     // Add pagination headers

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
@@ -140,7 +140,7 @@ export const strictRateLimitMiddleware = rateLimit({
 });
 
 // Compression middleware with security considerations
-export const compressionMiddleware = compression({
+export const compressionMiddleware: RequestHandler = compression({
   // Only compress responses that are larger than 1kb
   threshold: 1024,
   
@@ -196,7 +196,7 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
       contentLength: res.get('Content-Length') || '0',
     });
     
-    return originalEnd.call(res, chunk as string | Buffer, encoding);
+    return originalEnd.call(res, chunk as string | Buffer, encoding || 'utf8');
   } as typeof res.end;
   
   next();

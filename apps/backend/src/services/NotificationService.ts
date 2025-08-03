@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { Order, WebSocketMessage } from '@muta/shared';
+import { Order, WebSocketMessage, OrderStatus } from '@muta/shared';
 import { INotificationService } from '../interfaces/INotificationService';
 import { createComponentLogger } from '../utils/logger';
 
@@ -108,9 +108,9 @@ export class SocketIONotificationService implements INotificationService {
     }
   }
   
-  async addClient(clientId: string, metadata?: Record<string, unknown>): Promise<void> {
+  async addClient(clientId: string, metadata?: { socket: Socket; metadata?: Record<string, unknown> }): Promise<void> {
     try {
-      this.connectedClients.set(clientId, metadata || {});
+      this.connectedClients.set(clientId, metadata || { socket: this.io.sockets.sockets.get(clientId)! });
       
       logger.info('Client connected', { 
         clientId,
@@ -151,15 +151,17 @@ export class SocketIONotificationService implements INotificationService {
   
   async notifySystemStatus(status: 'healthy' | 'degraded' | 'unhealthy'): Promise<void> {
     try {
+      const systemOrder: Order = {
+        id: 'SYSTEM_STATUS',
+        address: 'System Health',
+        status: OrderStatus.PENDING,
+        collectorName: `System-${status}`,
+        lastUpdated: new Date(),
+      };
+      
       const message: WebSocketMessage = {
-        type: 'order-update', // Reusing existing type for system messages
-        data: {
-          id: 'SYSTEM_STATUS',
-          address: '',
-          status: status as 'healthy' | 'degraded' | 'unhealthy',
-          collectorName: 'System',
-          lastUpdated: new Date(),
-        },
+        type: 'order-update',
+        data: systemOrder,
         timestamp: new Date(),
       };
       

@@ -161,8 +161,9 @@ export const messageAuthMiddleware = (socket: AuthenticatedSocket) => {
         }
         
         // Check authentication for subscription
-        if (data.type === 'subscribe' && config.websocket.apiKey && !socket.isAuthenticated) {
-          if (!data.apiKey || data.apiKey !== config.websocket.apiKey) {
+        const messageData = validation.value as { type?: string; data?: { apiKey?: string } };
+        if (messageData.type === 'subscribe' && config.websocket.apiKey && !socket.isAuthenticated) {
+          if (!messageData.data?.apiKey || messageData.data.apiKey !== config.websocket.apiKey) {
             securityLogger.logFailedAuth('Invalid WebSocket API key', socket.clientInfo.ip);
             
             if (callback) {
