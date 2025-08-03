@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend-debug:
+    build:
+      context: ../../ # Build desde root para acceder a packages
+      dockerfile: apps/backend/Dockerfile.debug
+    container_name: muta-backend-debug
+    restart: 'no' # No reiniciar para debugging
+
+    # Environment variables para debugging
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - CORS_ORIGIN=http://localhost:3000
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=simple
+      - TRUST_PROXY=true
+      # Variables opcionales con valores por defecto
+      - WS_API_KEY=debug-key-12345
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX=1000
+      - WS_PING_TIMEOUT=60000
+      - WS_PING_INTERVAL=25000
+      - SIMULATION_MIN_INTERVAL=3000
+      - SIMULATION_MAX_INTERVAL=10000
+
+    # Ports
+    ports:
+      - '8080:8080'
+
+    # Configuración de logging más permisiva
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '100m'
+        max-file: '10'
+
+    # Configuración de seguridad más permisiva para debugging
+    read_only: false
+    cap_drop: [] # No drop capabilities para debugging
+    security_opt: [] # Sin restricciones de seguridad para debugging
+
+    # Health check deshabilitado para debugging
+    # healthcheck:
+    #   disable: true
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,73 @@
+# Dockerfile de debugging con logs mejorados
+FROM node:18-alpine AS builder
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@8.15.1 --activate
+
+WORKDIR /app
+
+# Copy workspace files
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY turbo.json ./
+
+# Copy packages
+COPY packages ./packages
+COPY apps/backend ./apps/backend
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build shared packages and backend
+RUN pnpm turbo run build --filter=@muta/backend...
+
+# Production stage
+FROM node:18-alpine
+
+# Install pnpm for production
+RUN corepack enable && corepack prepare pnpm@8.15.1 --activate
+
+WORKDIR /app
+
+# Copy workspace configuration
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+
+# Copy built application and its package.json
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+
+# Install only production dependencies (skip prepare scripts)
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+
+WORKDIR /app/apps/backend
+
+# Set production environment
+ENV NODE_ENV=production
+
+EXPOSE 3001
+
+# Script de inicio con debugging
+RUN echo '#!/bin/sh' > /app/start-debug.sh && \
+    echo 'echo "🚀 INICIANDO APLICACIÓN - DEBUG MODE"' >> /app/start-debug.sh && \
+    echo 'echo "Fecha: $(date)"' >> /app/start-debug.sh && \
+    echo 'echo "Usuario: $(whoami)"' >> /app/start-debug.sh && \
+    echo 'echo "Directorio: $(pwd)"' >> /app/start-debug.sh && \
+    echo 'echo "Archivos en directorio:"' >> /app/start-debug.sh && \
+    echo 'ls -la' >> /app/start-debug.sh && \
+    echo 'echo "Variables de entorno importantes:"' >> /app/start-debug.sh && \
+    echo 'env | grep -E "(NODE_ENV|PORT|LOG_|WS_API_KEY|CORS_ORIGIN)" || echo "No se encontraron variables relevantes"' >> /app/start-debug.sh && \
+    echo 'echo "Verificando archivo principal:"' >> /app/start-debug.sh && \
+    echo 'ls -la dist/index.js || echo "❌ Archivo dist/index.js no encontrado"' >> /app/start-debug.sh && \
+    echo 'echo "Contenido de package.json:"' >> /app/start-debug.sh && \
+    echo 'cat package.json' >> /app/start-debug.sh && \
+    echo 'echo "🚀 Ejecutando aplicación..."' >> /app/start-debug.sh && \
+    echo 'node dist/index.js' >> /app/start-debug.sh && \
+    chmod +x /app/start-debug.sh
+
+# Usar script de debug como comando principal
+CMD ["/app/start-debug.sh"]
