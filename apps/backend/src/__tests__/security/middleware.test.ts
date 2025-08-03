@@ -4,7 +4,7 @@ import {
   corsMiddleware, 
   apiSecurityHeadersMiddleware 
 } from '../../middleware/security';
-import { errorHandler } from '../../middleware/errorHandler';
+import { errorHandler, ValidationError } from '../../middleware/errorHandler';
 
 // Mock configuration
 jest.mock('../../config', () => ({
@@ -250,7 +250,6 @@ describe('Security Middleware', () => {
       });
 
       app.get('/validation-error', (req, res, next) => {
-        const { ValidationError } = await import('../../middleware/errorHandler');
         next(new ValidationError('Invalid input provided'));
       });
 

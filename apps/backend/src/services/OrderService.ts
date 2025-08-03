@@ -367,4 +367,10 @@ export class OrderService implements IOrderService {
     // This is a synchronous wrapper for async method - not ideal but needed for compatibility
     throw new Error('Use getOrderStats() async method instead');
   }
+
+  stopSimulation(): void {
+    // Method for stopping any ongoing simulations
+    // Currently a no-op as there are no simulations running
+    logger.debug('Simulation stop requested');
+  }
 }
