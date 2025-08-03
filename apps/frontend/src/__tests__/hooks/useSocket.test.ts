@@ -7,17 +7,23 @@ jest.mock('socket.io-client');
 const mockIo = io as jest.MockedFunction<typeof io>;
 
 // Mock console methods to avoid test output noise
-const originalConsoleLog = console.log;
-const originalConsoleError = console.error;
+// eslint-disable-next-line no-console
+const _originalConsoleLog = console.log;
+// eslint-disable-next-line no-console
+const _originalConsoleError = console.error;
 
 beforeAll(() => {
+  // eslint-disable-next-line no-console
   console.log = jest.fn();
+  // eslint-disable-next-line no-console
   console.error = jest.fn();
 });
 
 afterAll(() => {
-  console.log = originalConsoleLog;
-  console.error = originalConsoleError;
+  // eslint-disable-next-line no-console
+  console.log = _originalConsoleLog;
+  // eslint-disable-next-line no-console
+  console.error = _originalConsoleError;
 });
 
 // Mock socket instance

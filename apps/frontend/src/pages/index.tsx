@@ -11,7 +11,11 @@ import { Globe } from 'lucide-react';
 
 export default function Home() {
   const { t, i18n } = useTranslation('common');
-  const { orders, isConnected, error } = useSocket();
+
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
+
+  const { orders, isConnected, error } = useSocket(wsUrl);
+
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'es' ? 'en' : 'es';
@@ -32,12 +36,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {t('title')}
-                </h1>
-                <p className="text-sm text-gray-600">
-                  {t('subtitle')}
-                </p>
+                <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+                <p className="text-sm text-gray-600">{t('subtitle')}</p>
               </div>
               <Button
                 variant="ghost"
@@ -47,7 +47,8 @@ export default function Home() {
               >
                 <Globe className="w-4 h-4" />
                 <span>
-                  {t('language.switchTo')} {i18n.language === 'es' ? t('language.english') : t('language.spanish')}
+                  {t('language.switchTo')}{' '}
+                  {i18n.language === 'es' ? t('language.english') : t('language.spanish')}
                 </span>
               </Button>
             </div>
@@ -63,11 +64,7 @@ export default function Home() {
 
             {/* Orders Table Section */}
             <section>
-              <OrdersTable 
-                orders={orders} 
-                isConnected={isConnected} 
-                error={error} 
-              />
+              <OrdersTable orders={orders} isConnected={isConnected} error={error} />
             </section>
           </div>
         </main>
@@ -76,9 +73,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="text-center text-sm text-gray-500">
               <p>{t('footer.companyInfo')}</p>
-              <p className="mt-1">
-                {t('footer.techStack')}
-              </p>
+              <p className="mt-1">{t('footer.techStack')}</p>
             </div>
           </div>
         </footer>
