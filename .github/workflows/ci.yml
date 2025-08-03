@@ -39,75 +39,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - uses: pnpm/action-setup@v2
         with:
           version: 8.15.1
-          
+
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'pnpm'
-          
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Build packages
         run: pnpm turbo run build --filter='./packages/*'
-        
+
       - name: Lint
         run: pnpm turbo run lint
-        
+
       - name: Test
         run: pnpm turbo run test -- --coverage
-        
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         if: always()
-
-  # Build and deploy backend to DigitalOcean
-  deploy-backend:
-    needs: [changes, test]
-    if: github.ref == 'refs/heads/main' && needs.changes.outputs.backend == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build Docker image
-        run: docker build -f apps/backend/Dockerfile -t muta-backend:${{ github.sha }} .
-        
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          
-      - name: Push to DigitalOcean Container Registry
-        run: |
-          doctl registry login
-          docker tag muta-backend:${{ github.sha }} registry.digitalocean.com/${{ secrets.DO_REGISTRY }}/muta-backend:${{ github.sha }}
-          docker push registry.digitalocean.com/${{ secrets.DO_REGISTRY }}/muta-backend:${{ github.sha }}
-          
-      - name: Deploy to App Platform
-        run: |
-          doctl apps update ${{ secrets.DO_APP_ID }} --spec apps/backend/app.yaml
-
-  # Deploy frontend to Vercel
-  deploy-frontend:
-    needs: [changes, test]
-    if: needs.changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8.15.1
-          
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./apps/frontend
-          production: ${{ github.ref == 'refs/heads/main' }}
