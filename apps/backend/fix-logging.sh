@@ -8,13 +8,17 @@ echo "=========================================="
 echo ""
 
 # Verificar si el contenedor está corriendo
-CONTAINER_ID=$(docker ps --format "{{.ID}}" --filter "ancestor=muta-backend")
+CONTAINER_ID=$(docker ps --format "{{.ID}}" --filter "name=vibrant_shaw")
 
 if [ -z "$CONTAINER_ID" ]; then
-    echo "❌ No se encontró contenedor corriendo con imagen muta-backend"
-    echo "Verificando todos los contenedores..."
-    docker ps -a
-    exit 1
+    echo "Buscando cualquier contenedor con la aplicación..."
+    CONTAINER_ID=$(docker ps --format "{{.ID}}" | head -1)
+    if [ -z "$CONTAINER_ID" ]; then
+        echo "❌ No se encontró ningún contenedor corriendo"
+        echo "Verificando todos los contenedores..."
+        docker ps -a
+        exit 1
+    fi
 fi
 
 echo "✅ Contenedor encontrado: $CONTAINER_ID"
@@ -35,9 +39,15 @@ echo ""
 echo "2. Solucionando problema temporalmente:"
 echo "Estableciendo LOG_LEVEL=info para el contenedor actual..."
 
-# Método 1: Reiniciar con variables de entorno corregidas
+# Método 1: Agregar variables de entorno al contenedor existente y reiniciarlo
+echo "Obteniendo imagen del contenedor actual..."
+IMAGE_NAME=$(docker inspect $CONTAINER_ID --format='{{.Config.Image}}')
+echo "Imagen: $IMAGE_NAME"
+
 echo "Reiniciando contenedor con logs mejorados..."
 docker stop $CONTAINER_ID
+docker rm $CONTAINER_ID
+
 docker run -d \
   --name muta-backend-fixed \
   -p 8080:8080 \
@@ -55,7 +65,7 @@ docker run -d \
   -e SIMULATION_MIN_INTERVAL=3000 \
   -e SIMULATION_MAX_INTERVAL=10000 \
   -e TRUST_PROXY=true \
-  muta-backend
+  $IMAGE_NAME
 
 echo ""
 echo "3. Esperando a que el contenedor inicie..."
