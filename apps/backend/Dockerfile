@@ -41,8 +41,8 @@ COPY --from=builder /app/apps/backend/package.json ./apps/backend/
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Install only production dependencies (skip prepare scripts)
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 WORKDIR /app/apps/backend
 
