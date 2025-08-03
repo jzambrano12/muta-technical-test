@@ -22,7 +22,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, _details?: Record<string, unknown>) {
     super(message, 400, true, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
   }
@@ -70,12 +70,12 @@ interface ErrorResponse {
   statusCode: number;
   timestamp: string;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
   requestId?: string;
 }
 
 // Sanitize error details for production
-const sanitizeErrorForProduction = (error: any): Partial<ErrorResponse> => {
+const sanitizeErrorForProduction = (error: Error & { statusCode?: number; isOperational?: boolean; code?: string }): Partial<ErrorResponse> => {
   const sanitized: Partial<ErrorResponse> = {
     error: 'Internal Server Error',
     message: 'An unexpected error occurred',
@@ -95,13 +95,13 @@ const sanitizeErrorForProduction = (error: any): Partial<ErrorResponse> => {
 };
 
 // Create detailed error response for development
-const createDetailedError = (error: any, req: Request): ErrorResponse => {
+const createDetailedError = (error: Error & { statusCode?: number; code?: string; stack?: string }, req: Request): ErrorResponse => {
   const response: ErrorResponse = {
     error: error.name || 'Error',
     message: error.message || 'An unexpected error occurred',
     statusCode: error.statusCode || 500,
     timestamp: new Date().toISOString(),
-    requestId: (req as any).id,
+    requestId: (req as Request & { id?: string }).id,
   };
 
   if (error.code) {
@@ -110,20 +110,20 @@ const createDetailedError = (error: any, req: Request): ErrorResponse => {
 
   // Add stack trace in development
   if (config.isDevelopment && error.stack) {
-    (response as any).stack = error.stack;
+    (response as ErrorResponse & { stack?: string }).stack = error.stack;
   }
 
   return response;
 };
 
 // Log error with appropriate level and context
-const logError = (error: any, req: Request) => {
+const logError = (error: Error & { statusCode?: number; isOperational?: boolean; code?: string }, req: Request) => {
   const context = {
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
     ip: req.ip,
-    requestId: (req as any).id,
+    requestId: (req as Request & { id?: string }).id,
     statusCode: error.statusCode || 500,
   };
 
@@ -160,7 +160,7 @@ const logError = (error: any, req: Request) => {
 };
 
 // Main error handling middleware
-export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (error: Error & { statusCode?: number }, req: Request, res: Response, _next: NextFunction): void => {
   // Ensure we have a status code
   error.statusCode = error.statusCode || 500;
 
@@ -187,7 +187,7 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -195,7 +195,7 @@ export const asyncHandler = (fn: Function) => {
 
 // Unhandled promise rejection handler
 export const handleUnhandledRejection = () => {
-  process.on('unhandledRejection', (reason: any, promise) => {
+  process.on('unhandledRejection', (reason: Error | unknown, promise) => {
     logger.error('Unhandled Promise Rejection', {
       reason: reason?.message || reason,
       stack: reason?.stack,

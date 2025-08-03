@@ -1,12 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { OrderStatus } from '@muta/shared';
 import { OrderService } from '../services/OrderService';
 import { requestSchemas, createValidationMiddleware } from '../schemas/validation';
 import { asyncHandler, NotFoundError, ValidationError } from '../middleware/errorHandler';
 import { strictRateLimitMiddleware } from '../middleware/security';
 import { createComponentLogger } from '../utils/logger';
 
-const router: any = Router();
+const router = Router();
 const logger = createComponentLogger('ordersRouter');
 
 // Apply strict rate limiting to all order endpoints
@@ -26,12 +25,19 @@ router.get('/',
   createValidationMiddleware(requestSchemas.getOrdersQuery, 'query'),
   asyncHandler(async (req: Request, res: Response) => {
     const orderService = getOrderService(req);
-    const { status, search, page, limit, sortBy, sortOrder } = req.query as any;
+    const { status, search, page, limit, sortBy, sortOrder } = req.query as {
+      status?: string;
+      search?: string;
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    };
     
     logger.info('Orders list requested', {
       filters: { status, search },
       pagination: { page, limit, sortBy, sortOrder },
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const filters = { status, search };
@@ -49,7 +55,7 @@ router.get('/',
     logger.debug('Orders list response', {
       count: result.data.length,
       total: result.pagination.total,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json(result);
@@ -62,14 +68,14 @@ router.get('/stats',
     const orderService = getOrderService(req);
     
     logger.info('Order statistics requested', {
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const stats = await orderService.getOrderStats();
     
     logger.debug('Order statistics response', {
       stats,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json(stats);
@@ -82,7 +88,7 @@ router.get('/health',
     const orderService = getOrderService(req);
     
     logger.info('Service health requested', {
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const health = await orderService.getServiceHealth();
@@ -100,7 +106,13 @@ router.get('/search',
   createValidationMiddleware(requestSchemas.getOrdersQuery, 'query'),
   asyncHandler(async (req: Request, res: Response) => {
     const orderService = getOrderService(req);
-    const { search, page, limit, sortBy, sortOrder } = req.query as any;
+    const { search, page, limit, sortBy, sortOrder } = req.query as {
+      search?: string;
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    };
     
     if (!search) {
       throw new ValidationError('Search term is required');
@@ -109,7 +121,7 @@ router.get('/search',
     logger.info('Order search requested', {
       searchTerm: search,
       pagination: { page, limit, sortBy, sortOrder },
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const pagination = { page, limit, sortBy, sortOrder };
@@ -126,7 +138,7 @@ router.get('/search',
       searchTerm: search,
       count: result.data.length,
       total: result.pagination.total,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json(result);
@@ -142,7 +154,7 @@ router.get('/:id',
     
     logger.info('Single order requested', {
       orderId: id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const order = await orderService.getOrderById(id);
@@ -150,14 +162,14 @@ router.get('/:id',
     if (!order) {
       logger.warn('Order not found', {
         orderId: id,
-        requestId: (req as any).id,
+        requestId: (req as Request & { id?: string }).id,
       });
       throw new NotFoundError('Order not found');
     }
     
     logger.debug('Single order response', {
       orderId: id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json(order);
@@ -173,14 +185,14 @@ router.post('/',
     
     logger.info('Order creation requested', {
       orderData: { ...orderData, id: undefined }, // Don't log sensitive data
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const createdOrder = await orderService.createOrder(orderData);
     
     logger.info('Order created successfully', {
       orderId: createdOrder.id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.status(201).json(createdOrder);
@@ -199,7 +211,7 @@ router.put('/:id',
     logger.info('Order update requested', {
       orderId: id,
       updateData: { ...updateData, id: undefined }, // Don't log sensitive data
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const updatedOrder = await orderService.updateOrder(id, updateData);
@@ -207,14 +219,14 @@ router.put('/:id',
     if (!updatedOrder) {
       logger.warn('Order not found for update', {
         orderId: id,
-        requestId: (req as any).id,
+        requestId: (req as Request & { id?: string }).id,
       });
       throw new NotFoundError('Order not found');
     }
     
     logger.info('Order updated successfully', {
       orderId: id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json(updatedOrder);
@@ -230,7 +242,7 @@ router.delete('/:id',
     
     logger.info('Order deletion requested', {
       orderId: id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const deleted = await orderService.deleteOrder(id);
@@ -238,14 +250,14 @@ router.delete('/:id',
     if (!deleted) {
       logger.warn('Order not found for deletion', {
         orderId: id,
-        requestId: (req as any).id,
+        requestId: (req as Request & { id?: string }).id,
       });
       throw new NotFoundError('Order not found');
     }
     
     logger.info('Order deleted successfully', {
       orderId: id,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.status(204).send(); // No content
@@ -269,7 +281,7 @@ router.post('/bulk',
     
     logger.info('Bulk order creation requested', {
       count: orders.length,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const createdOrders = await orderService.createMultipleOrders(orders);
@@ -277,7 +289,7 @@ router.post('/bulk',
     logger.info('Bulk orders created successfully', {
       requested: orders.length,
       created: createdOrders.length,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.status(201).json({
@@ -308,7 +320,7 @@ router.put('/bulk',
     
     logger.info('Bulk order update requested', {
       count: updates.length,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const updatedOrders = await orderService.updateMultipleOrders(updates);
@@ -316,7 +328,7 @@ router.put('/bulk',
     logger.info('Bulk orders updated successfully', {
       requested: updates.length,
       updated: updatedOrders.length,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json({
@@ -347,7 +359,7 @@ router.delete('/bulk',
     
     logger.info('Bulk order deletion requested', {
       count: ids.length,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     const deletedCount = await orderService.deleteMultipleOrders(ids);
@@ -355,7 +367,7 @@ router.delete('/bulk',
     logger.info('Bulk orders deleted successfully', {
       requested: ids.length,
       deleted: deletedCount,
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
     });
     
     res.json({
@@ -369,13 +381,13 @@ router.delete('/bulk',
 );
 
 // Error handling middleware specific to orders router
-router.use((error: any, req: Request, res: Response, next: any) => {
+router.use((error: Error, req: Request, res: Response, next: (err?: Error) => void) => {
   logger.error('Orders router error', {
     error: error.message,
     stack: error.stack,
     url: req.url,
     method: req.method,
-    requestId: (req as any).id,
+    requestId: (req as Request & { id?: string }).id,
   });
   
   next(error);

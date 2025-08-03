@@ -48,13 +48,13 @@ describe('OrderService', () => {
       createMany: jest.fn().mockResolvedValue(mockOrders),
       updateMany: jest.fn(),
       deleteMany: jest.fn(),
-    } as any;
+    } as jest.Mocked<IOrderRepository>;
 
     mockNotificationService = {
       notifyOrderCreated: jest.fn(),
       notifyOrderUpdated: jest.fn(),
       notifyOrderDeleted: jest.fn(),
-    } as any;
+    } as jest.Mocked<INotificationService>;
 
     mockSimulator = {
       onOrderCreated: undefined,
@@ -64,7 +64,7 @@ describe('OrderService', () => {
       stop: jest.fn(),
       startSimulation: jest.fn(),
       stopSimulation: jest.fn(),
-    } as any;
+    } as jest.Mocked<IOrderSimulator>;
 
     orderService = new OrderService(mockRepository, mockNotificationService, mockSimulator);
     await orderService.initializeWithSampleData();

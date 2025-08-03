@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { Request, Response, NextFunction } from 'express';
 import { OrderStatus } from '@muta/shared';
 
 // Base schemas for common validations
@@ -22,7 +23,7 @@ export const baseSchemas = {
   // Search string validation (prevent injection attacks)
   searchString: Joi.string()
     .max(100)
-    .pattern(/^[a-zA-Z0-9\s\-_\.@]+$/)
+    .pattern(/^[a-zA-Z0-9\s\-_.@]+$/)
     .messages({
       'string.max': 'Search term cannot exceed 100 characters',
       'string.pattern.base': 'Search term contains invalid characters',
@@ -140,7 +141,7 @@ const orderSchema = Joi.object({
   lastUpdated: Joi.date().required(),
 });
 
-export const responseSchemas: any = {
+export const responseSchemas = {
   order: orderSchema,
 
   ordersList: Joi.object({
@@ -180,7 +181,7 @@ export const customValidations = {
   validateSearchSafety: (search: string): boolean => {
     const dangerousPatterns = [
       // SQL injection patterns
-      /('|\\')|(;|\\;)|(\|)|(\*)|(\%)|(\+)|(\=)|(\<)|(\>)|(\^)|(\$)|(\[)|(\])|(\{)|(\})|(\()|(\))/i,
+      /('|')|(;)|(\|)|(\*)|(%)|(\+)|(=)|(<)|(>)|(\^)|(\$)|(\[)|(\])|(\{)|(\})|(\()|(\))/i,
       /((\s*(union|select|insert|update|delete|drop|create|alter|exec|execute)\s+))/i,
       /((\s*(or|and)\s+\w+\s*=\s*\w+))/i,
       // Path traversal patterns
@@ -191,7 +192,7 @@ export const customValidations = {
   },
 
   // Validate that the request doesn't exceed rate limits
-  validateRequestFrequency: (req: any): boolean => {
+  validateRequestFrequency: (_req: Request): boolean => {
     // This would integrate with your rate limiting solution
     // For now, return true (actual rate limiting is handled by middleware)
     return true;
@@ -206,7 +207,7 @@ export const customValidations = {
 
 // Validation middleware factory
 export const createValidationMiddleware = (schema: Joi.Schema, property: 'body' | 'query' | 'params' | 'headers' = 'body') => {
-  return (req: any, res: any, next: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req[property], { 
       abortEarly: false,
       stripUnknown: true,

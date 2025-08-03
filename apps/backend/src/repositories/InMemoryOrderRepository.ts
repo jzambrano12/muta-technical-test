@@ -1,7 +1,7 @@
 import { Order, OrderStatus, OrderFilters } from '@muta/shared';
 import { IOrderRepository, PaginationOptions, PaginatedResult } from '../interfaces/IOrderRepository';
 import { createComponentLogger } from '../utils/logger';
-import { NotFoundError, ValidationError } from '../middleware/errorHandler';
+import { ValidationError } from '../middleware/errorHandler';
 
 const logger = createComponentLogger('InMemoryOrderRepository');
 

@@ -2,7 +2,6 @@ import request from 'supertest';
 import express from 'express';
 import { 
   corsMiddleware, 
-  rateLimitMiddleware, 
   apiSecurityHeadersMiddleware 
 } from '../../middleware/security';
 import { errorHandler } from '../../middleware/errorHandler';
@@ -28,13 +27,13 @@ jest.mock('../../config', () => ({
 describe('Security Middleware', () => {
   let app: express.Application;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = express();
     app.use(express.json());
   });
 
   describe('CORS Middleware', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       app.use(corsMiddleware);
       app.get('/test', (req, res) => res.json({ message: 'success' }));
       app.use(errorHandler);
@@ -94,9 +93,9 @@ describe('Security Middleware', () => {
   });
 
   describe('Rate Limiting Middleware', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       // Create a more permissive rate limiter for testing
-      const testRateLimit = require('express-rate-limit')({
+      const testRateLimit = (await import('express-rate-limit')).default({
         windowMs: 1000, // 1 second
         max: 3, // 3 requests per second
         message: {
@@ -154,7 +153,7 @@ describe('Security Middleware', () => {
   });
 
   describe('API Security Headers Middleware', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       app.use(apiSecurityHeadersMiddleware);
       app.get('/api/test', (req, res) => res.json({ message: 'success' }));
     });
@@ -174,8 +173,8 @@ describe('Security Middleware', () => {
   });
 
   describe('Input Validation Security', () => {
-    beforeEach(() => {
-      const { createValidationMiddleware, requestSchemas } = require('../../schemas/validation');
+    beforeEach(async () => {
+      const { createValidationMiddleware, requestSchemas } = await import('../../schemas/validation');
       
       app.get('/validate-query', 
         createValidationMiddleware(requestSchemas.getOrdersQuery, 'query'),
@@ -243,15 +242,15 @@ describe('Security Middleware', () => {
   });
 
   describe('Error Handling Security', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       app.get('/error', (req, res, next) => {
         const error = new Error('Sensitive internal error with database details');
-        (error as any).stack = 'Error: Sensitive internal error\n    at /home/user/sensitive/path/file.js:123:45';
+        (error as Error & { stack?: string }).stack = 'Error: Sensitive internal error\n    at /home/user/sensitive/path/file.js:123:45';
         next(error);
       });
 
       app.get('/validation-error', (req, res, next) => {
-        const { ValidationError } = require('../../middleware/errorHandler');
+        const { ValidationError } = await import('../../middleware/errorHandler');
         next(new ValidationError('Invalid input provided'));
       });
 
@@ -260,7 +259,7 @@ describe('Security Middleware', () => {
 
     it('should not expose sensitive error details in production', async () => {
       // Temporarily modify config for this test
-      const configModule = require('../../config');
+      const configModule = await import('../../config');
       const originalIsProduction = configModule.config.isProduction;
       const originalIsDevelopment = configModule.config.isDevelopment;
       
@@ -312,7 +311,7 @@ describe('Security Middleware', () => {
   });
 
   describe('Content Security', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       app.use(express.json({ limit: '1mb' }));
       app.post('/upload', (req, res) => res.json({ received: true }));
       app.use(errorHandler);

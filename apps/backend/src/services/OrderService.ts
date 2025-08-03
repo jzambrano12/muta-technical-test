@@ -3,7 +3,7 @@ import { IOrderService, ServiceHealth, TimeRange, OrderTrend } from '../interfac
 import { IOrderRepository, PaginationOptions, PaginatedResult } from '../interfaces/IOrderRepository';
 import { INotificationService } from '../interfaces/INotificationService';
 import { createComponentLogger } from '../utils/logger';
-import { NotFoundError, ValidationError, ServiceUnavailableError } from '../middleware/errorHandler';
+import { ValidationError, ServiceUnavailableError } from '../middleware/errorHandler';
 
 const logger = createComponentLogger('OrderService');
 
@@ -23,7 +23,7 @@ export class OrderService implements IOrderService {
   }
 
 
-  private handleError(message: string, error: any): void {
+  private handleError(message: string, error: unknown): void {
     this.lastError = {
       message: `${message}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       timestamp: new Date(),
@@ -350,13 +350,13 @@ export class OrderService implements IOrderService {
     throw new Error('Use getAllOrders() async method instead');
   }
 
-  getOrderByIdLegacy(id: string): Order | undefined {
+  getOrderByIdLegacy(_id: string): Order | undefined {
     logger.warn('Using deprecated getOrderByIdLegacy method');
     // This is a synchronous wrapper for async method - not ideal but needed for compatibility
     throw new Error('Use getOrderById() async method instead');
   }
 
-  getFilteredOrdersLegacy(filters: { status?: OrderStatus; search?: string }): Order[] {
+  getFilteredOrdersLegacy(_filters: { status?: OrderStatus; search?: string }): Order[] {
     logger.warn('Using deprecated getFilteredOrdersLegacy method');
     // This is a synchronous wrapper for async method - not ideal but needed for compatibility
     throw new Error('Use getFilteredOrders() async method instead');

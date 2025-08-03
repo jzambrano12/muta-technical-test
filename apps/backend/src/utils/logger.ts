@@ -137,7 +137,7 @@ export const securityLogger = {
 };
 
 // Utility function to sanitize sensitive data from logs
-function sanitizeSensitiveData(data: any): any {
+function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, unknown> {
   if (!data || typeof data !== 'object') {
     return data;
   }

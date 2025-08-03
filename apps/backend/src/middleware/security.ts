@@ -140,7 +140,7 @@ export const strictRateLimitMiddleware = rateLimit({
 });
 
 // Compression middleware with security considerations
-export const compressionMiddleware: any = compression({
+export const compressionMiddleware = compression({
   // Only compress responses that are larger than 1kb
   threshold: 1024,
   
@@ -170,11 +170,11 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
   const startTime = Date.now();
   
   // Generate request ID for tracking
-  (req as any).id = Math.random().toString(36).substring(2, 15);
+  (req as Request & { id?: string }).id = Math.random().toString(36).substring(2, 15);
   
   // Log request details
   logger.info('Incoming request', {
-    requestId: (req as any).id,
+    requestId: (req as Request & { id?: string }).id,
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
@@ -184,11 +184,11 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
   
   // Override res.end to log response
   const originalEnd = res.end;
-  res.end = function(chunk?: any, encoding?: any): Response {
+  res.end = function(chunk?: unknown, encoding?: BufferEncoding): Response {
     const duration = Date.now() - startTime;
     
     logger.info('Request completed', {
-      requestId: (req as any).id,
+      requestId: (req as Request & { id?: string }).id,
       method: req.method,
       url: req.url,
       statusCode: res.statusCode,
@@ -196,8 +196,8 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
       contentLength: res.get('Content-Length') || '0',
     });
     
-    return originalEnd.call(res, chunk, encoding);
-  } as any;
+    return originalEnd.call(res, chunk as string | Buffer, encoding);
+  } as typeof res.end;
   
   next();
 };

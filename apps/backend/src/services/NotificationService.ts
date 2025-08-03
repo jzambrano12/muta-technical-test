@@ -7,7 +7,7 @@ const logger = createComponentLogger('NotificationService');
 
 export class SocketIONotificationService implements INotificationService {
   private io: Server;
-  private connectedClients: Map<string, { socket: Socket; metadata?: any }> = new Map();
+  private connectedClients: Map<string, { socket: Socket; metadata?: Record<string, unknown> }> = new Map();
   
   constructor(io: Server) {
     this.io = io;
@@ -108,7 +108,7 @@ export class SocketIONotificationService implements INotificationService {
     }
   }
   
-  async addClient(clientId: string, metadata?: any): Promise<void> {
+  async addClient(clientId: string, metadata?: Record<string, unknown>): Promise<void> {
     try {
       this.connectedClients.set(clientId, metadata || {});
       
@@ -156,7 +156,7 @@ export class SocketIONotificationService implements INotificationService {
         data: {
           id: 'SYSTEM_STATUS',
           address: '',
-          status: status as any,
+          status: status as 'healthy' | 'degraded' | 'unhealthy',
           collectorName: 'System',
           lastUpdated: new Date(),
         },

@@ -90,7 +90,7 @@ export const connectionAuthMiddleware = (socket: Socket, next: (err?: ExtendedEr
 
 // Message authentication and validation middleware
 export const messageAuthMiddleware = (socket: AuthenticatedSocket) => {
-  return (event: string, data: any, callback?: Function) => {
+  return (event: string, data: unknown, callback?: (response: { error?: string }) => void) => {
     try {
       // Check if socket is blocked due to rate limiting
       if (socket.rateLimitData.isBlocked) {

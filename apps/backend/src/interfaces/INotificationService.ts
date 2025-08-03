@@ -12,7 +12,7 @@ export interface INotificationService {
   broadcastToRoom(room: string, message: WebSocketMessage): Promise<void>;
   
   // Client management
-  addClient(clientId: string, metadata?: any): Promise<void>;
+  addClient(clientId: string, metadata?: Record<string, unknown>): Promise<void>;
   removeClient(clientId: string): Promise<void>;
   getConnectedClients(): Promise<string[]>;
   
