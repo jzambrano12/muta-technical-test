@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.production
     container_name: muta-backend-prod
     restart: unless-stopped
-    
+
     # Security configurations
     user: backend
     read_only: true
@@ -19,7 +19,7 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    
+
     # Resource limits
     deploy:
       resources:
@@ -29,7 +29,7 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-    
+
     # Environment variables
     environment:
       - NODE_ENV=production
@@ -43,33 +43,34 @@ services:
       - SIMULATION_MIN_INTERVAL=${SIMULATION_MIN_INTERVAL:-3000}
       - SIMULATION_MAX_INTERVAL=${SIMULATION_MAX_INTERVAL:-10000}
       - TRUST_PROXY=true
-      - LOG_LEVEL=${LOG_LEVEL:-warn}
-      - LOG_FORMAT=json
-    
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-simple}
+      - ENABLE_STARTUP_LOGS=true
+
     # Ports
     ports:
-      - "8080:8080"
-    
+      - '8080:8080'
+
     # Volumes for logs (read-write)
     volumes:
       - logs:/app/logs
       - /tmp:/tmp:rw
-    
+
     # Health check
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:8080/health']
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 40s
-    
+
     # Logging configuration
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
-    
+        max-size: '10m'
+        max-file: '3'
+
     # Network
     networks:
       - backend-network
@@ -79,7 +80,7 @@ services:
     image: nginx:alpine
     container_name: muta-nginx-prod
     restart: unless-stopped
-    
+
     # Security configurations
     read_only: true
     cap_drop:
@@ -90,12 +91,12 @@ services:
       - SETUID
     security_opt:
       - no-new-privileges:true
-    
+
     # Ports
     ports:
-      - "80:80"
-      - "443:443"
-    
+      - '80:80'
+      - '443:443'
+
     # Nginx configuration
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
@@ -103,22 +104,22 @@ services:
       - /tmp/nginx:/tmp:rw
       - /var/cache/nginx:/var/cache/nginx:rw
       - /var/run:/var/run:rw
-    
+
     # Dependencies
     depends_on:
       backend:
         condition: service_healthy
-    
+
     # Network
     networks:
       - backend-network
-    
+
     # Logging
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
 volumes:
   logs:

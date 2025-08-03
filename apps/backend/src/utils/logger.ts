@@ -91,19 +91,28 @@ export const logger = winston.createLogger({
   silent: config.isTest && process.env.ENABLE_LOGGING !== 'true',
 });
 
+// Force startup logs to be visible in production
+const originalLevel = logger.level;
+if (config.isProduction && process.env.ENABLE_STARTUP_LOGS === 'true') {
+  logger.level = 'info';
+  setTimeout(() => {
+    logger.level = originalLevel;
+  }, 10000); // Reset to original level after 10 seconds
+}
+
 // Create specialized loggers for different components
 export const createComponentLogger = (component: string) => {
   return {
-    error: (message: string, meta?: Record<string, unknown>) => 
+    error: (message: string, meta?: Record<string, unknown>) =>
       logger.error(message, { component, ...meta }),
-    
-    warn: (message: string, meta?: Record<string, unknown>) => 
+
+    warn: (message: string, meta?: Record<string, unknown>) =>
       logger.warn(message, { component, ...meta }),
-    
-    info: (message: string, meta?: Record<string, unknown>) => 
+
+    info: (message: string, meta?: Record<string, unknown>) =>
       logger.info(message, { component, ...meta }),
-    
-    debug: (message: string, meta?: Record<string, unknown>) => 
+
+    debug: (message: string, meta?: Record<string, unknown>) =>
       logger.debug(message, { component, ...meta }),
   };
 };
@@ -118,7 +127,7 @@ export const securityLogger = {
       ...sanitizedDetails,
     });
   },
-  
+
   logFailedAuth: (reason: string, ip?: string) => {
     logger.warn('Authentication failed', {
       component: 'auth',
@@ -126,7 +135,7 @@ export const securityLogger = {
       ip: ip ? maskIP(ip) : undefined,
     });
   },
-  
+
   logSuspiciousActivity: (activity: string, details: Record<string, unknown>) => {
     logger.error(`SUSPICIOUS: ${activity}`, {
       component: 'security',
@@ -146,7 +155,7 @@ function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, un
   const sanitized = { ...data };
 
   for (const key in sanitized) {
-    if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
+    if (sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))) {
       sanitized[key] = '[REDACTED]';
     } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
       sanitized[key] = sanitizeSensitiveData(sanitized[key] as Record<string, unknown>);
