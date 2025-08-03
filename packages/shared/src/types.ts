@@ -1,9 +1,9 @@
 export enum OrderStatus {
-  PENDING = 'pendiente',
-  EN_ROUTE = 'en ruta',
-  IN_PROCESS = 'en proceso',
-  COMPLETED = 'completada',
-  CANCELLED = 'cancelada'
+  PENDING = 'pending',
+  EN_ROUTE = 'in-route',
+  IN_PROCESS = 'in-progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 export interface Order {
